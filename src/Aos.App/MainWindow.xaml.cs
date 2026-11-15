@@ -20,6 +20,7 @@ public sealed partial class MainWindow : Window
         SetTitleBar(TitleBar);
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1100, 780));
         if (File.Exists(IconPath)) AppWindow.SetIcon(IconPath); // window bar, taskbar, Alt+Tab
+        ApplyTheme(App.State.Settings.Theme);
 
         App.State.Notice += (message, isError) => DispatcherQueue.TryEnqueue(() =>
         {
@@ -66,6 +67,23 @@ public sealed partial class MainWindow : Window
             _tray.Notify("Still running in the tray",
                 "Your server blocks stay active. Click the tray icon to open the app, or right-click it and choose Exit. You can turn this off in Settings.");
         }
+    }
+
+    /// <summary>
+    /// Applies "Light", "Dark" or "System". The content's RequestedTheme drives every page and the Mica
+    /// backdrop; the caption buttons (min/max/close) are drawn by the system, so the title bar gets
+    /// the matching theme too.
+    /// </summary>
+    public void ApplyTheme(string theme)
+    {
+        var (element, titleBar) = theme switch
+        {
+            "Light" => (ElementTheme.Light, TitleBarTheme.Light),
+            "Dark" => (ElementTheme.Dark, TitleBarTheme.Dark),
+            _ => (ElementTheme.Default, TitleBarTheme.UseDefaultAppMode),
+        };
+        if (Content is FrameworkElement root) root.RequestedTheme = element;
+        AppWindow.TitleBar.PreferredTheme = titleBar;
     }
 
     public void ShowFromTray()

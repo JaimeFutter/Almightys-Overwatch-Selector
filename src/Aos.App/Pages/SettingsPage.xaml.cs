@@ -27,6 +27,8 @@ public sealed partial class SettingsPage : Page
             : "Not found. Click Browse and pick ...\\Overwatch\\_retail_\\Overwatch.exe.";
         CloseToTray.IsOn = State.Settings.CloseToTray;
         RemoveOnExit.IsOn = State.Settings.RemoveRulesOnExit;
+        ThemeChoice.SelectedIndex = Array.IndexOf(ThemeKeys, State.Settings.Theme) is var i and >= 0 ? i : 2;
+        ThemeSummary.Text = ThemeLabels[ThemeChoice.SelectedIndex];
         _loading = false;
 
         try
@@ -81,6 +83,21 @@ public sealed partial class SettingsPage : Page
         WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(App.Window));
         var file = await picker.PickSingleFileAsync();
         if (file is not null) SetGamePath(file.Path);
+    }
+
+    // Same order as the RadioButtons in SettingsPage.xaml.
+    private static readonly string[] ThemeKeys = ["Light", "Dark", "System"];
+    private static readonly string[] ThemeLabels = ["Light", "Dark", "Use system setting"];
+
+    private void Theme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || ThemeChoice.SelectedIndex < 0) return;
+        string theme = ThemeKeys[ThemeChoice.SelectedIndex];
+        ThemeSummary.Text = ThemeLabels[ThemeChoice.SelectedIndex];
+        if (State.Settings.Theme == theme) return;
+        State.Settings.Theme = theme;
+        State.SaveSettings();
+        App.Window?.ApplyTheme(theme);
     }
 
     private void CloseToTray_Toggled(object sender, RoutedEventArgs e)

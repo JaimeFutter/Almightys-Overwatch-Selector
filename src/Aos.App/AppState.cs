@@ -14,6 +14,8 @@ public sealed class AppSettings
     public bool RemoveRulesOnExit { get; set; }
     /// <summary>Closing the window hides it to the tray instead of quitting. On by default.</summary>
     public bool CloseToTray { get; set; } = true;
+    /// <summary>"System" (follow Windows), "Light" or "Dark".</summary>
+    public string Theme { get; set; } = "System";
     public List<string> Blocked { get; set; } = [];
 }
 

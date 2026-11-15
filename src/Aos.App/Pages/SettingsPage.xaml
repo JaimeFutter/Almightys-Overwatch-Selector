@@ -26,6 +26,21 @@
                     </StackPanel>
                 </tk:SettingsCard>
 
+                <TextBlock Text="Appearance" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsExpander x:Name="ThemeExpander" Header="App theme" Description="Choose light or dark, or follow your Windows setting.">
+                    <tk:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE790;" /></tk:SettingsExpander.HeaderIcon>
+                    <TextBlock x:Name="ThemeSummary" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                    <tk:SettingsExpander.Items>
+                        <tk:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                            <RadioButtons x:Name="ThemeChoice" SelectionChanged="Theme_SelectionChanged" MaxColumns="1">
+                                <x:String>Light</x:String>
+                                <x:String>Dark</x:String>
+                                <x:String>Use system setting</x:String>
+                            </RadioButtons>
+                        </tk:SettingsCard>
+                    </tk:SettingsExpander.Items>
+                </tk:SettingsExpander>
+
                 <TextBlock Text="Window" Style="{StaticResource SectionHeaderStyle}" />
                 <tk:SettingsCard Header="Close to the system tray"
                                  Description="The close button keeps the app running in the tray, with a notification the first time. Click the tray icon to reopen it, or right-click it and choose Exit.">
