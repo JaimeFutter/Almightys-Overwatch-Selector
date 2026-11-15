@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "notes": "Server catalog. 'blizzard' = curated ranges on Blizzard's own network (AS57976). 'gcp' = Google Cloud regions (scopes in cloud.json). 'aws' = AWS regions (EC2 ranges). 'extra' = any other CIDRs. Override by copying this file to %LOCALAPPDATA%\\AlmightysOverwatchSelector\\servers.json.",
+  "servers": [
+    { "code": "ord1",  "name": "USA - Central",         "location": "Chicago",                 "region": "NA",
+      "blizzard": ["64.224.0.0/21", "24.105.40.0/21"], "ping": "8.34.210.23" },
+    { "code": "las1",  "name": "USA - Southwest",       "location": "Las Vegas",               "region": "NA",
+      "blizzard": ["64.224.24.0/23", "24.105.8.0/21"], "ping": "34.16.128.42" },
+    { "code": "guc1",  "name": "USA - Central 2",       "location": "Iowa",                    "region": "NA",
+      "gcp": ["us-central1", "us-central2"] },
+    { "code": "gue4",  "name": "USA - East",            "location": "Virginia / S. Carolina",  "region": "NA",
+      "gcp": ["us-east4", "us-east1", "us-east5", "us-east7"], "ping": "8.228.65.52" },
+    { "code": "guw2",  "name": "USA - West",            "location": "Oregon / Los Angeles",    "region": "NA",
+      "gcp": ["us-west1", "us-west2", "us-west3", "us-west4", "us-west8"] },
+
+    { "code": "ams1",  "name": "Netherlands",           "location": "Amsterdam",               "region": "EU",
+      "blizzard": ["64.224.26.0/23", "5.42.168.0/21", "5.42.184.0/21"], "ping": "137.221.78.60" },
+    { "code": "gen1",  "name": "Finland 2",             "location": "Hamina",                  "region": "EU",
+      "gcp": ["europe-north1"], "ping": "34.88.0.1" },
+    { "code": "geu1",  "name": "Europe - Google Cloud", "location": "Belgium / Frankfurt / London / NL", "region": "EU",
+      "gcp": ["europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "europe-west8",
+              "europe-west9", "europe-west10", "europe-west12", "europe-central2", "europe-southwest1"] },
+
+    { "code": "gmec1", "name": "Qatar",                 "location": "Doha",                    "region": "ME",
+      "gcp": ["me-central1"] },
+    { "code": "gmec2", "name": "Saudi Arabia",          "location": "Dammam",                  "region": "ME",
+      "gcp": ["me-central2"], "ping": "34.166.0.84" },
+    { "code": "mes1",  "name": "Bahrain",               "location": "Bahrain / UAE (AWS)",     "region": "ME",
+      "aws": ["me-south-1", "me-central-1"], "ping": "dynamodb.me-south-1.amazonaws.com" },
+    { "code": "gmew1", "name": "Middle East - West",    "location": "Tel Aviv",                "region": "ME",
+      "gcp": ["me-west1"], "aws": ["me-west-1"] },
+
+    { "code": "gtk1",  "name": "Japan 2",               "location": "Tokyo / Osaka",           "region": "Asia",
+      "gcp": ["asia-northeast1", "asia-northeast2"], "ping": "34.84.0.0" },
+    { "code": "gsg1",  "name": "Singapore 2",           "location": "Singapore / Jakarta",     "region": "Asia",
+      "gcp": ["asia-southeast1", "asia-southeast2"], "ping": "34.1.128.4" },
+    { "code": "tpe1",  "name": "Taiwan",                "location": "Taipei",                  "region": "Asia",
+      "blizzard": ["5.42.160.0/22", "5.42.164.0/22"], "gcp": ["asia-east1"], "ping": "34.80.0.0" },
+    { "code": "gan3",  "name": "South Korea 3",         "location": "Seoul (GCP)",             "region": "Asia", "experimental": true,
+      "gcp": ["asia-northeast3"] },
+    { "code": "icn1",  "name": "South Korea",           "location": "Incheon",                 "region": "Asia", "experimental": true,
+      "blizzard": ["202.9.66.0/23", "110.45.208.0/24", "117.52.6.0/24", "117.52.26.0/23", "117.52.28.0/23", "117.52.33.0/24",
+                   "117.52.34.0/23", "117.52.36.0/23", "121.254.137.0/24", "121.254.206.0/23", "121.254.218.0/24", "182.162.31.0/24"] },
+
+    { "code": "syd2",  "name": "Australia 3",           "location": "Sydney / Melbourne",      "region": "Oceania",
+      "blizzard": ["158.115.196.0/23", "37.244.42.0/24"], "gcp": ["australia-southeast1", "australia-southeast2"], "ping": "34.40.128.34" },
+
+    { "code": "gbr1",  "name": "Brazil 2",              "location": "Sao Paulo / Santiago",    "region": "South America",
+      "gcp": ["southamerica-east1", "southamerica-west1"], "ping": "34.39.128.0" }
+  ]
+}
