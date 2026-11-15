@@ -46,7 +46,17 @@ public sealed partial class SettingsPage : Page
         CatalogCard.Description = $"{State.Catalog.Origin} · {State.Catalog.Servers.Count} servers";
         LearnedCard.Description = $"{State.Learned.Items.Count} learned";
         DataCard.Description = AppPaths.DataDirectory;
+        AboutExpander.Description = $"Version {AppVersion} · GPL-3.0 · Copyright (C) 2026 Jaime Futter";
     }
+
+    public static string AppVersion =>
+        System.Reflection.Assembly.GetExecutingAssembly()
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion.Split('+')[0]
+        ?? "dev";
+
+    private void Repo_Click(object sender, RoutedEventArgs e) =>
+        Process.Start(new ProcessStartInfo("https://github.com/ST10067405/Almightys-Overwatch-Selector") { UseShellExecute = true });
 
     private static string Fmt(DateTimeOffset? d) => d is null ? "Never downloaded" : $"Updated {d.Value.LocalDateTime:g}";
 

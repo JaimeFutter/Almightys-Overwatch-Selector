@@ -1,0 +1,153 @@
+name: Release
+
+# Push a tag like v1.0.0 to build, sign (through SignPath, once configured) and draft a GitHub release.
+#
+# Signing turns on automatically once these are set in the repo's Settings > Secrets and variables > Actions:
+#   secret   SIGNPATH_API_TOKEN               (SignPath CI user token)
+#   variable SIGNPATH_ORGANIZATION_ID
+#   variable SIGNPATH_PROJECT_SLUG            (e.g. almightys-overwatch-selector)
+#   variable SIGNPATH_SIGNING_POLICY_SLUG     (e.g. release-signing)
+# Without them the workflow still produces an unsigned draft release.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g. 1.0.0). Manual runs upload artifacts only; no release is drafted.'
+        required: true
+
+permissions:
+  contents: write   # create the draft release
+  actions: read     # SignPath downloads the build artifact
+
+jobs:
+  release:
+    runs-on: windows-latest
+    env:
+      SIGN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Work out version
+        id: v
+        shell: pwsh
+        run: |
+          $v = if ('${{ github.event_name }}' -eq 'workflow_dispatch') { '${{ inputs.version }}' } else { '${{ github.ref_name }}'.TrimStart('v') }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      - name: Test and publish
+        shell: pwsh
+        run: ./scripts/build-release.ps1 -Version ${{ steps.v.outputs.version }} -Stage Publish
+
+      # ---- Sign the app's own binaries ----
+      - name: Upload unsigned app
+        if: env.SIGN == 'true'
+        id: unsigned-app
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-app
+          path: artifacts/publish/win-x64/
+
+      - name: Sign app (SignPath)
+        if: env.SIGN == 'true'
+        uses: SignPath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.unsigned-app.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: artifacts/signed-app
+
+      - name: Use signed app
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: |
+          Remove-Item artifacts/publish/win-x64 -Recurse -Force
+          Move-Item artifacts/signed-app artifacts/publish/win-x64
+
+      # ---- Package (zip + installer) from the (signed) app ----
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Package
+        shell: pwsh
+        run: ./scripts/build-release.ps1 -Version ${{ steps.v.outputs.version }} -Stage Package
+
+      # ---- Sign the installer ----
+      - name: Upload unsigned installer
+        if: env.SIGN == 'true'
+        id: unsigned-installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer
+          path: artifacts/AlmightysOverwatchSelector-Setup-*.exe
+
+      - name: Sign installer (SignPath)
+        if: env.SIGN == 'true'
+        uses: SignPath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: artifacts/signed-installer
+
+      - name: Use signed installer
+        if: env.SIGN == 'true'
+        shell: pwsh
+        run: Copy-Item artifacts/signed-installer/*.exe artifacts/ -Force
+
+      - name: Checksums
+        shell: pwsh
+        run: |
+          $v = '${{ steps.v.outputs.version }}'
+          Get-ChildItem artifacts -File | Where-Object { $_.Name -like "*$v*" -and $_.Extension -in '.exe', '.zip' } |
+            ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
+            Set-Content artifacts/SHA256SUMS.txt -Encoding ascii
+          Get-Content artifacts/SHA256SUMS.txt
+
+      - name: Upload release files
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ steps.v.outputs.version }}
+          path: |
+            artifacts/*.exe
+            artifacts/*.zip
+            artifacts/SHA256SUMS.txt
+
+      - name: Draft GitHub release
+        if: github.event_name == 'push'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $v = '${{ steps.v.outputs.version }}'
+          $signed = if ($env:SIGN -eq 'true') { 'Signed through SignPath (certificate by SignPath Foundation).' } else { 'This build is **not code signed**: Windows SmartScreen may warn on first run (More info > Run anyway). Verify the download against SHA256SUMS.txt.' }
+          $notes = @"
+          ## Download
+          - **AlmightysOverwatchSelector-Setup-$v.exe**: installer (recommended)
+          - **AlmightysOverwatchSelector-$v-win-x64-portable.zip**: no install, unzip and run
+
+          Windows 10 1809+ / Windows 11, x64. Runs as administrator (it manages firewall rules).
+          $signed
+
+          Unofficial fan-made tool, not affiliated with Blizzard Entertainment. Free software under the GPL-3.0.
+          "@
+          gh release create "${{ github.ref_name }}" artifacts/*.exe artifacts/*.zip artifacts/SHA256SUMS.txt `
+            --draft --title "v$v" --notes $notes --generate-notes

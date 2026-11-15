@@ -62,14 +62,21 @@
                 </tk:SettingsCard>
 
                 <TextBlock Text="About" Style="{StaticResource SectionHeaderStyle}" />
-                <tk:SettingsExpander Header="Almighty's Overwatch Selector" Description="Choose which Overwatch 2 servers you can be matched on.">
+                <tk:SettingsExpander x:Name="AboutExpander" Header="Almighty's Overwatch Selector" Description="Choose which Overwatch 2 servers you can be matched on.">
                     <tk:SettingsExpander.HeaderIcon>
                         <ImageIcon Source="ms-appx:///Assets/app.png" />
                     </tk:SettingsExpander.HeaderIcon>
                     <tk:SettingsExpander.Items>
                         <tk:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                            <StackPanel Spacing="8">
                             <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                        Text="Blocks Overwatch.exe from the regions you choose, using Windows Firewall rules in the group &quot;Almighty's Overwatch Selector&quot;. Game files and other apps aren't touched. Server IPs come from Google Cloud's and AWS's published ranges, Blizzard ranges checked against Blizzard's network (AS57976), and IPs learned during your matches. Use at your own risk." />
+                            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Free software under the GNU GPL v3 (or later). Unofficial: not affiliated with or endorsed by Blizzard Entertainment. Overwatch is a trademark of Blizzard Entertainment, Inc." />
+                            </StackPanel>
+                        </tk:SettingsCard>
+                        <tk:SettingsCard Header="Source code, license and releases" IsClickEnabled="True" Click="Repo_Click">
+                            <tk:SettingsCard.ActionIcon><FontIcon Glyph="&#xE8A7;" /></tk:SettingsCard.ActionIcon>
                         </tk:SettingsCard>
                     </tk:SettingsExpander.Items>
                 </tk:SettingsExpander>

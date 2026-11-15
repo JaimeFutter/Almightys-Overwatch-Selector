@@ -85,7 +85,7 @@ public sealed class FirewallService
         {
             // Don't leave a half-applied block list behind.
             Marshal.FinalReleaseComObject(policy);
-            policy = null;
+            policy = null!; // released above; the finally block must not release it twice
             try { RemoveAll(); } catch { /* report the original error */ }
             throw new InvalidOperationException($"Windows Firewall rejected rule '{current}': {e.Message} No rules were left in place.", e);
         }

@@ -1,0 +1,12 @@
+Almighty's Overwatch Selector
+
+Picks which Overwatch 2 servers you can be matched on by adding Windows Firewall rules
+that block Overwatch.exe from the regions you don't want. Game files are never touched.
+
+Good to know:
+- The app runs as administrator, because changing firewall rules requires it.
+- It downloads public IP range lists from Google, Amazon and RIPE. There's no telemetry.
+- Uninstalling removes the app's firewall rules automatically.
+
+Unofficial fan-made tool, not affiliated with or endorsed by Blizzard Entertainment.
+Overwatch is a trademark of Blizzard Entertainment, Inc. Use at your own risk.

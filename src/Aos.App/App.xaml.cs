@@ -24,6 +24,14 @@ public partial class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        // Used by the uninstaller: remove this app's firewall rules (and nobody else's), then quit without UI.
+        if (Environment.GetCommandLineArgs().Contains("--remove-rules", StringComparer.OrdinalIgnoreCase))
+        {
+            try { State.Firewall.RemoveAll(); } catch { /* best effort during uninstall */ }
+            Exit();
+            return;
+        }
+
         // One instance only: a second launch (e.g. while hidden in the tray) brings the first one back.
         _instance = new Mutex(initiallyOwned: true, InstanceName, out bool first);
         if (!first)

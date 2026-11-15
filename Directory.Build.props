@@ -1,0 +1,14 @@
+<Project>
+  <!-- Shared by every project. The release workflow overrides Version from the git tag (v1.2.3 -> 1.2.3). -->
+  <PropertyGroup>
+    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <Product>Almighty's Overwatch Selector</Product>
+    <Company>Jaime Futter</Company>
+    <Authors>Jaime Futter</Authors>
+    <Copyright>Copyright (C) 2026 Jaime Futter. Licensed under GPL-3.0-or-later.</Copyright>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/ST10067405/Almightys-Overwatch-Selector</RepositoryUrl>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>
