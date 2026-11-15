@@ -15,7 +15,7 @@
 #define AppName "Almighty's Overwatch Selector"
 #define AppExe "AlmightysOverwatchSelector.exe"
 #define AppPublisher "Jaime Futter"
-#define AppUrl "https://github.com/ST10067405/Almightys-Overwatch-Selector"
+#define AppUrl "https://github.com/JaimeFutter/Almightys-Overwatch-Selector"
 
 [Setup]
 ; Never change AppId: it's how upgrades and the uninstaller find existing installs.

@@ -13,7 +13,7 @@ The source code of Almighty's Overwatch Selector is free software under the GPL-
 - imply that your build is the official one or is signed by this project.
 
 Official builds are only published on this repository's
-[Releases page](https://github.com/ST10067405/Almightys-Overwatch-Selector/releases), and are code
+[Releases page](https://github.com/JaimeFutter/Almightys-Overwatch-Selector/releases), and are code
 signed through SignPath (see [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md)).
 
 "Overwatch" is a trademark of Blizzard Entertainment, Inc. This project is not affiliated with Blizzard.

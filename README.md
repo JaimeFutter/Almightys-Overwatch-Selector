@@ -8,7 +8,7 @@ It's built with a South Africa → avoid the Middle East setup in mind, but work
 
 ## Download
 
-Get the latest build from [Releases](https://github.com/ST10067405/Almightys-Overwatch-Selector/releases):
+Get the latest build from [Releases](https://github.com/JaimeFutter/Almightys-Overwatch-Selector/releases):
 
 - **`AlmightysOverwatchSelector-Setup-<version>.exe`**: installer (Start Menu shortcut, and uninstalling removes the app's firewall rules)
 - **`…-win-x64-portable.zip`**: no install, unzip and run `AlmightysOverwatchSelector.exe`

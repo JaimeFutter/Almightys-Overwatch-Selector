@@ -56,7 +56,7 @@ public sealed partial class SettingsPage : Page
         ?? "dev";
 
     private void Repo_Click(object sender, RoutedEventArgs e) =>
-        Process.Start(new ProcessStartInfo("https://github.com/ST10067405/Almightys-Overwatch-Selector") { UseShellExecute = true });
+        Process.Start(new ProcessStartInfo("https://github.com/JaimeFutter/Almightys-Overwatch-Selector") { UseShellExecute = true });
 
     private static string Fmt(DateTimeOffset? d) => d is null ? "Never downloaded" : $"Updated {d.Value.LocalDateTime:g}";
 

@@ -21,8 +21,8 @@ Builds made anywhere else, including local builds and forks, are not signed by t
 
 | Role | Members |
 |---|---|
-| Committers and reviewers | [ST10067405](https://github.com/ST10067405) |
-| Approvers | [ST10067405](https://github.com/ST10067405) |
+| Committers and reviewers | [JaimeFutter](https://github.com/JaimeFutter) |
+| Approvers | [JaimeFutter](https://github.com/JaimeFutter) |
 
 Every signing request is approved manually by an approver in SignPath. Multi-factor authentication
 is required on GitHub and SignPath for all team members.
