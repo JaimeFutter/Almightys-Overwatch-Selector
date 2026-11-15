@@ -14,7 +14,7 @@
       "gcp": ["us-west1", "us-west2", "us-west3", "us-west4", "us-west8"] },
 
     { "code": "ams1",  "name": "Netherlands",           "location": "Amsterdam",               "region": "EU",
-      "blizzard": ["64.224.26.0/23", "5.42.168.0/21", "5.42.184.0/21"], "ping": "137.221.78.60" },
+      "blizzard": ["64.224.26.0/23", "137.221.79.0/24", "5.42.168.0/21", "5.42.184.0/21"], "ping": "137.221.78.60" },
     { "code": "gen1",  "name": "Finland 2",             "location": "Hamina",                  "region": "EU",
       "gcp": ["europe-north1"], "ping": "34.88.0.1" },
     { "code": "geu1",  "name": "Europe - Google Cloud", "location": "Belgium / Frankfurt / London / NL", "region": "EU",

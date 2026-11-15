@@ -98,6 +98,8 @@ public class SourceAndBuilderTests
         Assert.Equal("mes1", set.Classify(IPAddress.Parse("3.29.1.1"))!.Code);
         Assert.Equal("gmew1", set.Classify(IPAddress.Parse("51.17.0.9"))!.Code);
         Assert.Equal("ams1", set.Classify(IPAddress.Parse("64.224.27.1"))!.Code);
+        // Seen with Learn mode during a real match; the in-game network graph showed AMS1.
+        Assert.Equal("ams1", set.Classify(IPAddress.Parse("137.221.79.101"))!.Code);
         Assert.Null(set.Classify(IPAddress.Parse("1.1.1.1")));
 
         Assert.Equal("Google Cloud me-central2", set.DescribeOwner(IPAddress.Parse("34.166.0.84")));
