@@ -50,6 +50,7 @@ try
         case "learn": await Learn(); break;
         case "rules": Rules(); break;
         case "dropship": Dropship(); break;
+        case "update": await Update(); break;
         default: Help(); break;
     }
     return 0;
@@ -164,6 +165,19 @@ void Rules()
         Console.WriteLine($"  {r.ActionText,-5} {r.DirectionText,-3} {(r.Enabled ? "on " : "off")} {r.SourceText,-22} {r.AddressCount,5} addr  {r.Name}  [{r.Grouping}]");
 }
 
+async Task Update()
+{
+    // aos update [--as <version>]   pretend to be <version> to see what would be offered
+    string current = Option("--as") ?? (typeof(Program).Assembly
+        .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+        .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion ?? "0.0.0");
+    var version = Aos.Core.Updates.SemVersion.Parse(current);
+    var update = await Aos.Core.Updates.UpdateChecker.CheckAsync(RangeBuilder.CreateHttpClient(), version);
+    Console.WriteLine(update is null
+        ? $"Up to date ({version})."
+        : $"Update available: {update.Version} ({(update.IsPreRelease ? "pre-release" : "release")}) -> {update.Url}");
+}
+
 void Dropship()
 {
     var scan = DropshipFilters.Scan();
@@ -198,4 +212,5 @@ void Help() => Console.WriteLine("""
     aos learn                                              (admin) detect the match server
     aos rules [--remove-blocks]                            every firewall rule touching Overwatch
     aos dropship [--remove]                                (admin) dropship's leftover WFP filters
+    aos update [--as <version>]                            check GitHub for a newer release
     """);

@@ -48,7 +48,14 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <InfoBar x:Name="Notice" Margin="36,12,36,0" MaxWidth="1000" IsOpen="False" />
+                <StackPanel>
+                    <InfoBar x:Name="UpdateBar" Margin="36,12,36,0" MaxWidth="1000" IsOpen="False" Severity="Informational" Title="Update available">
+                        <InfoBar.ActionButton>
+                            <Button Content="Download" Click="DownloadUpdate_Click" />
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                    <InfoBar x:Name="Notice" Margin="36,12,36,0" MaxWidth="1000" IsOpen="False" />
+                </StackPanel>
                 <Frame x:Name="ContentFrame" Grid.Row="1" />
             </Grid>
         </NavigationView>

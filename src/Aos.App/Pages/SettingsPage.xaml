@@ -76,6 +76,20 @@
                     <Button Content="Open folder" Click="OpenFolder_Click" />
                 </tk:SettingsCard>
 
+                <TextBlock Text="Updates" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsCard x:Name="UpdateCard" Header="Check for updates">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE895;" /></tk:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <ProgressRing x:Name="UpdateBusy" IsActive="False" Width="20" Height="20" />
+                        <Button x:Name="CheckNowButton" Content="Check now" Click="CheckNow_Click" />
+                    </StackPanel>
+                </tk:SettingsCard>
+                <tk:SettingsCard Header="Check automatically"
+                                 Description="Once a day, asks GitHub's public release list whether a newer version exists. Nothing about you or your PC is sent. You'll see a bar at the top, and a notification if the app is in the tray.">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE823;" /></tk:SettingsCard.HeaderIcon>
+                    <ToggleSwitch x:Name="AutoUpdateCheck" Toggled="AutoUpdateCheck_Toggled" />
+                </tk:SettingsCard>
+
                 <TextBlock Text="About" Style="{StaticResource SectionHeaderStyle}" />
                 <tk:SettingsExpander x:Name="AboutExpander" Header="Almighty's Overwatch Selector" Description="Choose which Overwatch servers you can be matched on.">
                     <tk:SettingsExpander.HeaderIcon>

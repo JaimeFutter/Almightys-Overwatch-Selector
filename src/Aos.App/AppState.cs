@@ -5,6 +5,7 @@ using Aos.Core.Firewall;
 using Aos.Core.Game;
 using Aos.Core.Learn;
 using Aos.Core.Net;
+using Aos.Core.Updates;
 
 namespace Aos.App;
 
@@ -16,6 +17,11 @@ public sealed class AppSettings
     public bool CloseToTray { get; set; } = true;
     /// <summary>"System" (follow Windows), "Light" or "Dark".</summary>
     public string Theme { get; set; } = "System";
+    /// <summary>Check GitHub for a newer release at most once a day. On by default.</summary>
+    public bool CheckForUpdates { get; set; } = true;
+    public DateTimeOffset? LastUpdateCheck { get; set; }
+    /// <summary>The newest version the user has already been notified about, so the tray only pops up once per release.</summary>
+    public string? NotifiedVersion { get; set; }
     public List<string> Blocked { get; set; } = [];
 }
 
@@ -34,6 +40,18 @@ public sealed class AppState
 
     public event Action? RangesChanged;
     public event Action<string, bool>? Notice; // message, isError
+    /// <summary>Raised when a newer release is found (automatically or by "Check now").</summary>
+    public event Action<ReleaseInfo>? UpdateAvailable;
+    public ReleaseInfo? AvailableUpdate { get; private set; }
+
+    public static readonly TimeSpan UpdateInterval = TimeSpan.FromDays(1);
+
+    /// <summary>This build's version, from the assembly's informational version (set by the release build).</summary>
+    public static SemVersion CurrentVersion { get; } = SemVersion.TryParse(
+        System.Reflection.Assembly.GetExecutingAssembly()
+            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
+            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion,
+        out var v) ? v : new SemVersion(0, 0, 0, "dev");
 
     public AppState()
     {
@@ -81,6 +99,43 @@ public sealed class AppState
         Settings.Blocked = blocked.Select(b => b.Code).ToList();
         SaveSettings();
         return rules;
+    }
+
+    /// <summary>
+    /// Checks GitHub for a newer release. Automatic checks respect the setting and run at most once a
+    /// day; manual checks always run. Returns the update, or null when up to date (or the check was skipped).
+    /// </summary>
+    public async Task<ReleaseInfo?> CheckForUpdatesAsync(bool manual)
+    {
+        if (!manual && (!Settings.CheckForUpdates ||
+            (Settings.LastUpdateCheck is { } last && DateTimeOffset.Now - last < UpdateInterval)))
+        {
+            // Checked recently: re-announce an update found earlier (e.g. after a restart) without asking GitHub again.
+            if (AvailableUpdate is null && Settings.CheckForUpdates &&
+                SemVersion.TryParse(Settings.NotifiedVersion, out var known) && known > CurrentVersion)
+            {
+                AvailableUpdate = new ReleaseInfo(known, $"v{known}", $"{UpdateChecker.ReleasesPage}/tag/v{known}",
+                    known.OnPreReleaseChannel, false, null);
+                UpdateAvailable?.Invoke(AvailableUpdate);
+            }
+            return AvailableUpdate;
+        }
+
+        try
+        {
+            var update = await UpdateChecker.CheckAsync(Builder.Http, CurrentVersion);
+            Settings.LastUpdateCheck = DateTimeOffset.Now;
+            SaveSettings();
+            AvailableUpdate = update;
+            if (update is not null) UpdateAvailable?.Invoke(update);
+            else if (manual) ReportInfo($"You're up to date (version {CurrentVersion}).");
+            return update;
+        }
+        catch (Exception e) when (e is HttpRequestException or TaskCanceledException or JsonException)
+        {
+            if (manual) ReportError($"Couldn't check for updates: {e.Message}");
+            return null;
+        }
     }
 
     public void ReportError(string message) => Notice?.Invoke(message, true);

@@ -71,6 +71,9 @@ public sealed class RangeBuilder
     public static readonly TimeSpan MaxAge = TimeSpan.FromDays(7);
 
     private readonly HttpClient _http;
+
+    /// <summary>The shared HTTP client (also used for update checks).</summary>
+    public HttpClient Http => _http;
     private readonly string _snapshotPath;
 
     public RangeBuilder(HttpClient? http = null, string? snapshotPath = null)

@@ -5,7 +5,8 @@ that block Overwatch.exe from the regions you don't want. Game files are never t
 
 Good to know:
 - The app runs as administrator, because changing firewall rules requires it.
-- It downloads public IP range lists from Google, Amazon and RIPE. There's no telemetry.
+- It downloads public IP range lists from Google, Amazon and RIPE, and checks GitHub
+  once a day for updates (you can turn this off). There's no telemetry.
 - Uninstalling removes the app's firewall rules automatically.
 
 Unofficial fan-made tool, not affiliated with or endorsed by Blizzard Entertainment.

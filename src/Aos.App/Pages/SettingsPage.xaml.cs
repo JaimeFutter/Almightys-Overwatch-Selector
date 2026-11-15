@@ -29,7 +29,9 @@ public sealed partial class SettingsPage : Page
         RemoveOnExit.IsOn = State.Settings.RemoveRulesOnExit;
         ThemeChoice.SelectedIndex = Array.IndexOf(ThemeKeys, State.Settings.Theme) is var i and >= 0 ? i : 2;
         ThemeSummary.Text = ThemeLabels[ThemeChoice.SelectedIndex];
+        AutoUpdateCheck.IsOn = State.Settings.CheckForUpdates;
         _loading = false;
+        ShowUpdateStatus();
 
         try
         {
@@ -48,14 +50,9 @@ public sealed partial class SettingsPage : Page
         CatalogCard.Description = $"{State.Catalog.Origin} · {State.Catalog.Servers.Count} servers";
         LearnedCard.Description = $"{State.Learned.Items.Count} learned";
         DataCard.Description = AppPaths.DataDirectory;
-        AboutExpander.Description = $"Version {AppVersion} · GPL-3.0 · Copyright (C) 2026 Jaime Futter";
+        AboutExpander.Description = $"Version {AppState.CurrentVersion} · GPL-3.0 · Copyright (C) 2026 Jaime Futter";
     }
 
-    public static string AppVersion =>
-        System.Reflection.Assembly.GetExecutingAssembly()
-            .GetCustomAttributes(typeof(System.Reflection.AssemblyInformationalVersionAttribute), false)
-            .OfType<System.Reflection.AssemblyInformationalVersionAttribute>().FirstOrDefault()?.InformationalVersion.Split('+')[0]
-        ?? "dev";
 
     private void Repo_Click(object sender, RoutedEventArgs e) =>
         Process.Start(new ProcessStartInfo("https://github.com/JaimeFutter/Almightys-Overwatch-Selector") { UseShellExecute = true });
@@ -98,6 +95,34 @@ public sealed partial class SettingsPage : Page
         State.Settings.Theme = theme;
         State.SaveSettings();
         App.Window?.ApplyTheme(theme);
+    }
+
+    private void ShowUpdateStatus()
+    {
+        string last = State.Settings.LastUpdateCheck is { } t ? $"Last checked {t.LocalDateTime:g}." : "Not checked yet.";
+        UpdateCard.Description = State.AvailableUpdate is { } u
+            ? $"Version {u.Version} is available (you have {AppState.CurrentVersion}). Use the Download button at the top. {last}"
+            : $"You have version {AppState.CurrentVersion}. {last}";
+    }
+
+    private async void CheckNow_Click(object sender, RoutedEventArgs e)
+    {
+        CheckNowButton.IsEnabled = false;
+        UpdateBusy.IsActive = true;
+        try { await State.CheckForUpdatesAsync(manual: true); }
+        finally
+        {
+            UpdateBusy.IsActive = false;
+            CheckNowButton.IsEnabled = true;
+            ShowUpdateStatus();
+        }
+    }
+
+    private void AutoUpdateCheck_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading || State.Settings.CheckForUpdates == AutoUpdateCheck.IsOn) return;
+        State.Settings.CheckForUpdates = AutoUpdateCheck.IsOn;
+        State.SaveSettings();
     }
 
     private void CloseToTray_Toggled(object sender, RoutedEventArgs e)

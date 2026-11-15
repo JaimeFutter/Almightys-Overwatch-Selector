@@ -57,6 +57,7 @@ aos block ME                                    # (admin) block just the Middle 
 aos status | aos clear | aos learn
 aos rules [--remove-blocks]                     # every Overwatch rule, from any tool
 aos dropship [--remove]                         # (admin) dropship's leftover WFP filters
+aos update [--as <version>]                     # check GitHub for a newer release
 ```
 
 ## Build
