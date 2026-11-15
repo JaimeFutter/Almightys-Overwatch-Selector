@@ -119,7 +119,7 @@ jobs:
           $v = '${{ steps.v.outputs.version }}'
           Get-ChildItem artifacts -File | Where-Object { $_.Name -like "*$v*" -and $_.Extension -in '.exe', '.zip' } |
             ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
-            Set-Content artifacts/SHA256SUMS.txt -Encoding ascii
+            Join-String -Separator "`n" | ForEach-Object { [IO.File]::WriteAllText("$PWD/artifacts/SHA256SUMS.txt", "$_`n") }
           Get-Content artifacts/SHA256SUMS.txt
 
       - name: Upload release files

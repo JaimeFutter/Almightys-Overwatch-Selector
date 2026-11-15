@@ -70,7 +70,8 @@ if ($Stage -in 'All', 'Package') {
     Step 'Writing checksums'
     $files = Get-ChildItem $artifacts -File | Where-Object { $_.Name -like "*$Version*" -and $_.Extension -in '.exe', '.zip' }
     $sums = $files | ForEach-Object { "{0}  {1}" -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name }
-    $sums | Set-Content (Join-Path $artifacts 'SHA256SUMS.txt') -Encoding ascii
+    # LF line endings so `sha256sum -c SHA256SUMS.txt` also works on Linux/macOS.
+    [IO.File]::WriteAllText((Join-Path $artifacts 'SHA256SUMS.txt'), (($sums -join "`n") + "`n"))
     $sums | Write-Host
 }
 
