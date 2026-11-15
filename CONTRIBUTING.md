@@ -23,6 +23,10 @@ Blizzard changes server addresses over time, and reports from players keep the l
    or IPs from the network graph, or the `aos classify <ip>` output.
 5. Keep pull requests focused. CI must pass.
 
+## Code of conduct
+
+Everyone taking part is expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## License
 
 By contributing, you agree that your contributions are licensed under the project's
