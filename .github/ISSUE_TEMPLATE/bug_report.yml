@@ -1,0 +1,127 @@
+name: Bug report
+description: Something in the app doesn't work, crashes, or shows an error.
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! If you were **matched on a server you blocked**, use the
+        **Wrong server / IP report** form instead. It asks for the details needed to fix the IP lists.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem. Include the exact error text if a yellow bar appeared at the top of the app.
+      placeholder: I clicked Apply and got "Value does not fall within the expected range."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the Servers page
+        2. Click Block Middle East
+        3. Click Apply
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      multiple: true
+      options:
+        - Servers page / Apply
+        - Firewall page
+        - Learn mode
+        - Settings
+        - Tray icon / notifications
+        - Installer / uninstaller
+        - IP refresh / ping
+        - Command line (aos.exe)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in Settings > About.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it?
+      options:
+        - Installer (Setup .exe)
+        - Portable zip
+        - Built from source
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Press Win+R, type `winver`, and copy the line with the version and build.
+      placeholder: "Windows 11 24H2 (OS Build 26100.xxxx)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: game-source
+    attributes:
+      label: Overwatch installed through
+      options:
+        - Battle.net
+        - Steam
+        - Not relevant
+    validations:
+      required: false
+
+  - type: dropdown
+    id: other-tools
+    attributes:
+      label: Other server selector tools used on this PC
+      description: Their leftover rules can interfere. The Firewall page lists them.
+      multiple: true
+      options:
+        - None
+        - dropship
+        - foryVERX Overwatch Server Selector
+        - Manual firewall rules
+        - VPN / GPN (ExitLag, NoPing, etc.)
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or extra details
+      description: Drag images in here. Don't post anything personal, such as your public IP address.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I'm on the latest release.
+          required: false
+        - label: I searched existing issues and this isn't a duplicate.
+          required: true

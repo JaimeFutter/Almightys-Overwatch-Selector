@@ -1,0 +1,103 @@
+name: Wrong server / IP report
+description: You were matched on a server you blocked, or a server is in the wrong region.
+title: "[Server]: "
+labels: ["server-data", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Blizzard doesn't publish its server IPs and changes them over time, so these reports are what
+        keep the lists accurate. Before filing:
+        1. Click **Refresh IPs** on the Servers page, then **Apply**, and restart Overwatch.
+        2. In a match, press **Ctrl+Shift+N** to open the network graph. It shows the server IP and name.
+        3. If you can, run **Learn** mode during that match. The Learn page shows what the app thinks the server is.
+
+        Only the **game server** IP is needed. Never post your own public IP address.
+
+  - type: input
+    id: server-ip
+    attributes:
+      label: Game server IP
+      description: From the in-game network graph (Ctrl+Shift+N) or the Learn page.
+      placeholder: "34.166.0.84"
+    validations:
+      required: true
+
+  - type: input
+    id: server-name
+    attributes:
+      label: Server name shown in-game
+      description: The network graph shows a code such as GMEC2 or AMS1, if visible.
+      placeholder: "GMEC2"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: real-region
+    attributes:
+      label: Where is this server, really?
+      description: Your best guess from the in-game name and ping.
+      options:
+        - Middle East
+        - Europe
+        - North America
+        - Asia
+        - Oceania
+        - South America
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: app-says
+    attributes:
+      label: What the app classified it as
+      description: From the Learn page, or `aos classify <ip>`. "Unknown" is useful too.
+      placeholder: "Unknown network / Saudi Arabia (GMEC2) / Netherlands (AMS1)"
+    validations:
+      required: false
+
+  - type: textarea
+    id: blocked
+    attributes:
+      label: Which servers did you have blocked?
+      placeholder: Block Middle East preset (GMEC1, GMEC2, MES1, GMEW1)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Game mode
+      options:
+        - Quick Play
+        - Competitive
+        - Arcade / custom
+        - Other
+    validations:
+      required: false
+
+  - type: input
+    id: your-region
+    attributes:
+      label: Your country (optional)
+      description: Helps explain which servers matchmaking prefers for you. Country only.
+      placeholder: "South Africa"
+
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I clicked Refresh IPs and Apply, and restarted Overwatch, before this match.
+          required: true
+        - label: No other selector tool or VPN was active (the Firewall page shows leftover rules).
+          required: false
