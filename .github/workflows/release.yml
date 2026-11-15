@@ -149,7 +149,13 @@ jobs:
 
           Unofficial fan-made tool, not affiliated with Blizzard Entertainment. Free software under the GPL-3.0.
           "@
+          # Notes go through a file and the asset list is expanded here: passing a multi-line string
+          # and wildcards straight to gh from PowerShell breaks its argument parsing.
+          $notesFile = Join-Path $env:RUNNER_TEMP 'release-notes.md'
+          Set-Content $notesFile $notes -Encoding utf8
+          $assets = @(Get-ChildItem artifacts -File | Where-Object { $_.Extension -in '.exe', '.zip' -or $_.Name -eq 'SHA256SUMS.txt' } | ForEach-Object FullName)
           # 0.x versions and versions with a suffix (1.1.0-beta.1) are marked as pre-releases.
-          $pre = if ($v.StartsWith('0.') -or $v.Contains('-')) { @('--prerelease') } else { @() }
-          gh release create "${{ github.ref_name }}" artifacts/*.exe artifacts/*.zip artifacts/SHA256SUMS.txt `
-            --draft --title "v$v" --notes $notes --generate-notes @pre
+          $flags = @('--draft', '--generate-notes', '--title', "v$v", '--notes-file', $notesFile)
+          if ($v.StartsWith('0.') -or $v.Contains('-')) { $flags += '--prerelease' }
+          gh release create '${{ github.ref_name }}' @assets @flags
+          if ($LASTEXITCODE) { exit $LASTEXITCODE }
