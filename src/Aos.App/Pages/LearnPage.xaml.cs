@@ -46,7 +46,7 @@ public sealed partial class LearnPage : Page
         bool on = State.Observer.IsRunning;
         WatchButton.IsChecked = on;
         WatchLabel.Text = on ? "Stop watching" : "Start watching";
-        WatchStatus.Text = on ? "Watching Overwatch.exe. Start or join a match." : "Not watching.";
+        WatchStatus.Text = on ? "Watching Overwatch.exe. Start or join a match." : "Off. Turn on before a match to detect its server.";
     }
 
     private void OnServerChanged(ObservedServer? s)
@@ -54,7 +54,7 @@ public sealed partial class LearnPage : Page
         if (s is null)
         {
             CurrentServer.Text = "No match detected";
-            CurrentDetail.Text = "";
+            CurrentDetail.Text = "Current match server";
             return;
         }
 
@@ -76,6 +76,7 @@ public sealed partial class LearnPage : Page
             string owner = State.Ranges?.DescribeOwner(IPAddress.Parse(l.Ip)) ?? "";
             _learned.Add(new LearnedItem(l, owner));
         }
+        NoLearned.Visibility = _learned.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void ServerCombo_Loaded(object sender, RoutedEventArgs e)

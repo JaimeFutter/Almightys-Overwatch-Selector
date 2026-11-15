@@ -8,12 +8,14 @@ public sealed record FirewallRuleInfo(string Name, string ServerCode, string Dir
 
 /// <summary>
 /// Creates Windows Firewall block rules scoped to Overwatch.exe through the HNetCfg.FwPolicy2 COM API.
-/// Every rule is named "AOS | code | n" in one group, so we only ever touch our own rules.
+/// Every rule is named "AOS - CODE - n dir" in one group, so we only ever touch our own rules.
+/// Never put '|' in a rule's name or description: Windows stores each rule as a '|'-separated
+/// record and rejects such rules with E_INVALIDARG ("Value does not fall within the expected range").
 /// </summary>
 public sealed class FirewallService
 {
     public const string Group = "Almighty's Overwatch Selector";
-    public const string Prefix = "AOS | ";
+    public const string Prefix = "AOS - ";
     /// <summary>Addresses per rule. Windows accepts more, but big rules get slow to create and to edit in wf.msc.</summary>
     public const int MaxAddressesPerRule = 1000;
 
@@ -33,7 +35,13 @@ public sealed class FirewallService
         blocks.Select(b => b.ToString()).Chunk(size).Select(c => c.ToList()).ToList();
 
     public static string RuleName(string serverCode, int index, string direction) =>
-        $"{Prefix}{serverCode.ToUpperInvariant()} | {index + 1} {direction}";
+        $"{Prefix}{serverCode.ToUpperInvariant()} - {index + 1} {direction}";
+
+    /// <summary>Extracts the server code from one of our rule names ("AOS - MES1 - 1 out" -> "mes1").</summary>
+    public static string ServerCodeOf(string ruleName) =>
+        ruleName.StartsWith(Prefix, StringComparison.Ordinal)
+            ? ruleName[Prefix.Length..].Split(' ', 2)[0].ToLowerInvariant()
+            : "";
 
     /// <summary>Replaces all our rules with block rules for the given servers.</summary>
     public int Apply(string programPath, IEnumerable<(string ServerCode, IReadOnlyList<CidrBlock> Blocks)> blocked)
@@ -44,6 +52,7 @@ public sealed class FirewallService
         RemoveAll();
         dynamic policy = CreatePolicy();
         int created = 0;
+        string? current = null;
         try
         {
             foreach (var (code, blocks) in blocked)
@@ -55,7 +64,7 @@ public sealed class FirewallService
                     foreach (var (dir, label) in new[] { (DirectionOut, "out"), (DirectionIn, "in") })
                     {
                         dynamic rule = Activator.CreateInstance(Type.GetTypeFromProgID("HNetCfg.FWRule", throwOnError: true)!)!;
-                        rule.Name = RuleName(code, i, label);
+                        rule.Name = current = RuleName(code, i, label);
                         rule.Description = $"Blocks Overwatch from {code.ToUpperInvariant()} servers. Managed by {Group}.";
                         rule.Grouping = Group;
                         rule.ApplicationName = programPath;
@@ -72,7 +81,15 @@ public sealed class FirewallService
                 }
             }
         }
-        finally { Marshal.FinalReleaseComObject(policy); }
+        catch (Exception e)
+        {
+            // Don't leave a half-applied block list behind.
+            Marshal.FinalReleaseComObject(policy);
+            policy = null;
+            try { RemoveAll(); } catch { /* report the original error */ }
+            throw new InvalidOperationException($"Windows Firewall rejected rule '{current}': {e.Message} No rules were left in place.", e);
+        }
+        finally { if (policy is not null) Marshal.FinalReleaseComObject(policy); }
         return created;
     }
 
@@ -88,11 +105,10 @@ public sealed class FirewallService
                 string? grouping = rule.Grouping;
                 if (grouping == Group && name.StartsWith(Prefix, StringComparison.Ordinal))
                 {
-                    string[] parts = name.Split(" | ");
                     string addresses = rule.RemoteAddresses ?? "";
                     list.Add(new FirewallRuleInfo(
                         name,
-                        parts.Length > 1 ? parts[1].ToLowerInvariant() : "",
+                        ServerCodeOf(name),
                         (int)rule.Direction == DirectionIn ? "in" : "out",
                         addresses.Length == 0 ? 0 : addresses.Split(',').Length,
                         (string?)rule.ApplicationName ?? "",
@@ -130,6 +146,7 @@ public sealed class FirewallService
         try { var r = policy.Rules.Item(name); Marshal.FinalReleaseComObject(r); return true; }
         catch (COMException) { return false; }
         catch (FileNotFoundException) { return false; }
+        catch (ArgumentException) { return false; }
     }
 
     private static dynamic CreatePolicy() =>

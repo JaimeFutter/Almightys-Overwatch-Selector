@@ -2,39 +2,78 @@
 <Page
     x:Class="Aos.App.Pages.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls">
 
-    <ScrollViewer>
-        <StackPanel Padding="24,12,24,24" Spacing="12" MaxWidth="900" HorizontalAlignment="Left">
-            <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}" />
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <TextBlock Text="Game" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-            <Grid ColumnSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBox x:Name="GamePathBox" Header="Overwatch.exe location" PlaceholderText="Not found" LostFocus="GamePath_LostFocus" />
-                <Button Grid.Column="1" Content="Browse…" VerticalAlignment="Bottom" Click="Browse_Click" />
-                <Button Grid.Column="2" Content="Detect" VerticalAlignment="Bottom" Click="Detect_Click" />
-            </Grid>
-            <TextBlock x:Name="GameStatus" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <TextBlock Text="Settings" Style="{StaticResource TitleTextBlockStyle}"
+                   Margin="{StaticResource PageHeaderMargin}" MaxWidth="{StaticResource PageMaxWidth}" HorizontalAlignment="Stretch" />
 
-            <TextBlock Text="Firewall" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-            <ToggleSwitch x:Name="RemoveOnExit" Header="Remove block rules when the app closes" Toggled="RemoveOnExit_Toggled" />
-            <TextBlock x:Name="RulesText" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+        <ScrollViewer Grid.Row="1" Padding="{StaticResource PageScrollPadding}">
+            <StackPanel MaxWidth="{StaticResource PageMaxWidth}" Margin="{StaticResource PageContentMargin}" Spacing="{StaticResource SettingsCardSpacing}">
 
-            <TextBlock Text="IP sources" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-            <TextBlock x:Name="SourcesText" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Refresh IPs now" Click="Refresh_Click" />
-                <Button Content="Open data folder" Click="OpenFolder_Click" />
+                <TextBlock Text="Game" Style="{StaticResource SectionHeaderStyle}" Margin="1,0,0,6" />
+                <tk:SettingsCard x:Name="GameCard" Header="Overwatch.exe location">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE7FC;" /></tk:SettingsCard.HeaderIcon>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Content="Detect" Click="Detect_Click" />
+                        <Button Content="Browse…" Click="Browse_Click" />
+                    </StackPanel>
+                </tk:SettingsCard>
+
+                <TextBlock Text="Window" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsCard Header="Close to the system tray"
+                                 Description="The close button keeps the app running in the tray, with a notification the first time. Click the tray icon to reopen it, or right-click it and choose Exit.">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE737;" /></tk:SettingsCard.HeaderIcon>
+                    <ToggleSwitch x:Name="CloseToTray" Toggled="CloseToTray_Toggled" />
+                </tk:SettingsCard>
+
+                <TextBlock Text="Firewall" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsCard Header="Remove block rules when the app exits"
+                                 Description="Unblocks every server when you quit (Exit from the tray, or closing the window when close to tray is off).">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE83D;" /></tk:SettingsCard.HeaderIcon>
+                    <ToggleSwitch x:Name="RemoveOnExit" Toggled="RemoveOnExit_Toggled" />
+                </tk:SettingsCard>
+                <tk:SettingsCard x:Name="RulesCard" Header="Active block rules">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE9D9;" /></tk:SettingsCard.HeaderIcon>
+                </tk:SettingsCard>
+
+                <TextBlock Text="IP ranges" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsExpander x:Name="SourcesExpander" Header="Server IP sources" IsExpanded="True"
+                                     Description="Downloaded IP lists refresh automatically once they're more than 7 days old.">
+                    <tk:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE774;" /></tk:SettingsExpander.HeaderIcon>
+                    <Button Content="Refresh IPs now" Click="Refresh_Click" />
+                    <tk:SettingsExpander.Items>
+                        <tk:SettingsCard x:Name="GcpCard" Header="Google Cloud" />
+                        <tk:SettingsCard x:Name="AwsCard" Header="AWS" />
+                        <tk:SettingsCard x:Name="AsnCard" Header="Blizzard network (AS57976)" />
+                        <tk:SettingsCard x:Name="CatalogCard" Header="Server catalog" />
+                        <tk:SettingsCard x:Name="LearnedCard" Header="Learned server IPs" />
+                    </tk:SettingsExpander.Items>
+                </tk:SettingsExpander>
+                <tk:SettingsCard x:Name="DataCard" Header="Data folder" Description="Settings, cached IP lists, learned IPs, and your own servers.json if you add one.">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8B7;" /></tk:SettingsCard.HeaderIcon>
+                    <Button Content="Open folder" Click="OpenFolder_Click" />
+                </tk:SettingsCard>
+
+                <TextBlock Text="About" Style="{StaticResource SectionHeaderStyle}" />
+                <tk:SettingsExpander Header="Almighty's Overwatch Selector" Description="Choose which Overwatch 2 servers you can be matched on.">
+                    <tk:SettingsExpander.HeaderIcon>
+                        <ImageIcon Source="ms-appx:///Assets/app.png" />
+                    </tk:SettingsExpander.HeaderIcon>
+                    <tk:SettingsExpander.Items>
+                        <tk:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                       Text="Blocks Overwatch.exe from the regions you choose, using Windows Firewall rules in the group &quot;Almighty's Overwatch Selector&quot;. Game files and other apps aren't touched. Server IPs come from Google Cloud's and AWS's published ranges, Blizzard ranges checked against Blizzard's network (AS57976), and IPs learned during your matches. Use at your own risk." />
+                        </tk:SettingsCard>
+                    </tk:SettingsExpander.Items>
+                </tk:SettingsExpander>
             </StackPanel>
-
-            <TextBlock Text="About" Style="{StaticResource BodyStrongTextBlockStyle}" Margin="0,8,0,0" />
-            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Blocks Overwatch.exe from chosen regions with Windows Firewall rules (group &quot;Almighty's Overwatch Selector&quot;). Game files and other apps are not touched. Server IPs come from Google Cloud's and AWS's published ranges, curated Blizzard ranges checked against Blizzard's network (AS57976), and IPs learned during your matches. To customise the server list, copy servers.json into the data folder and edit it. Use at your own risk." />
-        </StackPanel>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Page>

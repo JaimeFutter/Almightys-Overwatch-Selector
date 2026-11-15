@@ -139,7 +139,10 @@ public class SourceAndBuilderTests
         var blocks = Enumerable.Range(0, 2500).Select(i => CidrBlock.Parse($"10.{i / 256}.{i % 256}.0/24"));
         var chunks = FirewallService.Chunk(blocks);
         Assert.Equal([1000, 1000, 500], chunks.Select(c => c.Count));
-        Assert.Equal("AOS | GMEC1 | 2 out", FirewallService.RuleName("gmec1", 1, "out"));
+        string name = FirewallService.RuleName("gmec1", 1, "out");
+        Assert.Equal("AOS - GMEC1 - 2 out", name);
+        Assert.DoesNotContain('|', name); // Windows rejects rules containing '|'
+        Assert.Equal("gmec1", FirewallService.ServerCodeOf(name));
     }
 
     [Theory]

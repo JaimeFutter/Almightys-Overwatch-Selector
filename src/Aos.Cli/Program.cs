@@ -16,6 +16,8 @@ using Aos.Core.Ping;
 //   aos status                                  list our firewall rules
 //   aos clear                                   remove our firewall rules (admin)
 //   aos learn                                   watch Overwatch traffic for the match server (admin)
+//   aos rules [--remove-blocks]                 every firewall rule touching Overwatch, from any tool
+//   aos dropship [--remove]                     dropship's WFP filters (admin)
 
 var argv = args.ToList();
 string cmd = argv.Count > 0 ? argv[0].ToLowerInvariant() : "help";
@@ -46,6 +48,8 @@ try
         case "status": Status(); break;
         case "clear": Console.WriteLine($"Removed {new FirewallService().RemoveAll()} rule name(s)."); break;
         case "learn": await Learn(); break;
+        case "rules": Rules(); break;
+        case "dropship": Dropship(); break;
         default: Help(); break;
     }
     return 0;
@@ -147,6 +151,29 @@ async Task Learn()
     await done.Task;
 }
 
+void Rules()
+{
+    if (Flag("--remove-blocks"))
+    {
+        Console.WriteLine($"Removed {OverwatchRules.RemoveAllBlocks()} Overwatch block rule(s) (allow rules kept).");
+        return;
+    }
+    var rules = OverwatchRules.List();
+    if (rules.Count == 0) { Console.WriteLine("No firewall rules mention Overwatch."); return; }
+    foreach (var r in rules.OrderBy(r => r.Source))
+        Console.WriteLine($"  {r.ActionText,-5} {r.DirectionText,-3} {(r.Enabled ? "on " : "off")} {r.SourceText,-22} {r.AddressCount,5} addr  {r.Name}  [{r.Grouping}]");
+}
+
+void Dropship()
+{
+    var scan = DropshipFilters.Scan();
+    Console.WriteLine($"dropship installed: {scan.Installed}, running: {scan.Running}, WFP filters: {scan.Filters.Count}");
+    if (scan.Error is not null) Console.WriteLine($"! {scan.Error}");
+    foreach (var f in scan.Filters) Console.WriteLine($"  {f.Id,8} {f.Key} {f.Name}");
+    if (Flag("--remove") && scan.Filters.Count > 0)
+        Console.WriteLine($"Removed {DropshipFilters.RemoveAll(scan.Filters)} filter(s).");
+}
+
 HashSet<string> Resolve(IEnumerable<string> tokens)
 {
     var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -169,4 +196,6 @@ void Help() => Console.WriteLine("""
     aos status
     aos clear                                              (admin)
     aos learn                                              (admin) detect the match server
+    aos rules [--remove-blocks]                            every firewall rule touching Overwatch
+    aos dropship [--remove]                                (admin) dropship's leftover WFP filters
     """);

@@ -3,97 +3,95 @@
     x:Class="Aos.App.Pages.ServersPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
     xmlns:app="using:Aos.App">
 
-    <Grid Padding="24,12,24,0" RowSpacing="12">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid ColumnSpacing="12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Spacing="2">
+        <!-- Fixed header -->
+        <StackPanel Margin="{StaticResource PageHeaderMargin}" MaxWidth="{StaticResource PageMaxWidth}" Spacing="8">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="Servers" Style="{StaticResource TitleTextBlockStyle}" />
-                <TextBlock x:Name="StatusText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
-            </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                <Button x:Name="UnblockAllButton" Content="Unblock all" Click="UnblockAll_Click" />
-                <Button x:Name="ApplyButton" Style="{StaticResource AccentButtonStyle}" Click="Apply_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE73E;" FontSize="14" />
-                        <TextBlock Text="Apply" />
-                    </StackPanel>
-                </Button>
-            </StackPanel>
-        </Grid>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <Button x:Name="UnblockAllButton" Content="Unblock all" Click="UnblockAll_Click" />
+                    <Button x:Name="ApplyButton" Style="{StaticResource AccentButtonStyle}" Click="Apply_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE73E;" FontSize="14" />
+                            <TextBlock Text="Apply" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+            <TextBlock x:Name="StatusText" Style="{StaticResource PageDescriptionStyle}" />
+            <CommandBar HorizontalAlignment="Left" DefaultLabelPosition="Right" Margin="-4,0,0,0">
+                <AppBarButton Label="Block Middle East" Click="BlockMiddleEast_Click" ToolTipService.ToolTip="Block every Middle East server (Qatar, Saudi Arabia, Bahrain, Tel Aviv)">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xE8F8;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Only allow…" Icon="Filter">
+                    <AppBarButton.Flyout>
+                        <MenuFlyout x:Name="PresetMenu" />
+                    </AppBarButton.Flyout>
+                </AppBarButton>
+                <AppBarButton Label="Allow all" Icon="Accept" Click="AllowAll_Click" />
+                <AppBarSeparator />
+                <AppBarButton Label="Ping" Click="Ping_Click">
+                    <AppBarButton.Icon><FontIcon Glyph="&#xEC05;" /></AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Label="Refresh IPs" Icon="Refresh" Click="Refresh_Click" />
+            </CommandBar>
+        </StackPanel>
 
-        <CommandBar Grid.Row="1" HorizontalAlignment="Left" DefaultLabelPosition="Right" IsOpen="False">
-            <AppBarButton Label="Block Middle East" Click="BlockMiddleEast_Click" ToolTipService.ToolTip="Block every Middle East server (Qatar, Saudi Arabia, Bahrain, Tel Aviv)">
-                <AppBarButton.Icon><FontIcon Glyph="&#xE8F8;" /></AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton x:Name="PresetButton" Label="Only allow…" Icon="Filter">
-                <AppBarButton.Flyout>
-                    <MenuFlyout x:Name="PresetMenu" />
-                </AppBarButton.Flyout>
-            </AppBarButton>
-            <AppBarButton Label="Allow all" Icon="Accept" Click="AllowAll_Click" />
-            <AppBarSeparator />
-            <AppBarButton Label="Ping" Click="Ping_Click">
-                <AppBarButton.Icon><FontIcon Glyph="&#xEC05;" /></AppBarButton.Icon>
-            </AppBarButton>
-            <AppBarButton Label="Refresh IPs" Icon="Refresh" Click="Refresh_Click" />
-        </CommandBar>
-
-        <ScrollViewer Grid.Row="2">
-            <Grid>
+        <!-- Scrolling content: the ScrollViewer spans the full width so its scrollbar sits at the window edge. -->
+        <ScrollViewer Grid.Row="1" Padding="{StaticResource PageScrollPadding}">
+            <Grid MaxWidth="{StaticResource PageMaxWidth}" Margin="{StaticResource PageContentMargin}">
                 <ProgressRing x:Name="Busy" IsActive="True" Width="40" Height="40" Margin="0,40,0,0" VerticalAlignment="Top" />
-                <ItemsControl x:Name="Groups" Margin="0,0,0,24">
+                <ItemsControl x:Name="Groups">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="app:RegionGroup">
-                            <StackPanel Spacing="8" Margin="0,8,0,8">
-                                <TextBlock Text="{x:Bind Name}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                            <StackPanel>
+                                <TextBlock Text="{x:Bind Name}" Style="{StaticResource SectionHeaderStyle}" />
                                 <ItemsRepeater ItemsSource="{x:Bind Servers}">
                                     <ItemsRepeater.Layout>
-                                        <UniformGridLayout MinItemWidth="300" MinItemHeight="112" MinColumnSpacing="8" MinRowSpacing="8" ItemsStretch="Fill" />
+                                        <StackLayout Spacing="{StaticResource SettingsCardSpacing}" />
                                     </ItemsRepeater.Layout>
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate x:DataType="app:ServerItem">
-                                            <Grid Padding="16,12" CornerRadius="8" RowSpacing="4"
-                                                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <TextBlock Text="{x:Bind Title}" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                                                    <Border Visibility="{x:Bind ExperimentalVisibility}" CornerRadius="4" Padding="6,0"
-                                                            Background="{ThemeResource SystemFillColorCautionBackgroundBrush}">
-                                                        <TextBlock Text="experimental" FontSize="11" VerticalAlignment="Center" />
-                                                    </Border>
-                                                </StackPanel>
-                                                <TextBlock Grid.Row="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                                                    <Run Text="{x:Bind Location}" /><Run Text="  ·  " /><Run Text="{x:Bind PingText, Mode=OneWay}" />
-                                                </TextBlock>
-                                                <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="6">
-                                                    <TextBlock Text="{x:Bind RangeText, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                                                    <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="{ThemeResource SystemFillColorCautionBrush}"
-                                                              Visibility="{x:Bind WarningVisibility, Mode=OneWay}"
-                                                              ToolTipService.ToolTip="{x:Bind WarningText, Mode=OneWay}" />
-                                                </StackPanel>
-                                                <ToggleSwitch Grid.Column="1" Grid.RowSpan="3" VerticalAlignment="Center" MinWidth="0"
-                                                              IsOn="{x:Bind IsAllowed, Mode=TwoWay}" OnContent="Allowed" OffContent="Blocked" />
-                                            </Grid>
+                                            <tk:SettingsCard>
+                                                <tk:SettingsCard.HeaderIcon>
+                                                    <FontIcon Glyph="{x:Bind StateGlyph, Mode=OneWay}" />
+                                                </tk:SettingsCard.HeaderIcon>
+                                                <tk:SettingsCard.Header>
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <TextBlock Text="{x:Bind Title}" />
+                                                        <Border Visibility="{x:Bind ExperimentalVisibility}" CornerRadius="4" Padding="6,1"
+                                                                Background="{ThemeResource SystemFillColorCautionBackgroundBrush}" VerticalAlignment="Center">
+                                                            <TextBlock Text="experimental" FontSize="11" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                </tk:SettingsCard.Header>
+                                                <tk:SettingsCard.Description>
+                                                    <StackPanel>
+                                                        <TextBlock>
+                                                            <Run Text="{x:Bind Location}" /><Run Text="  ·  " /><Run Text="{x:Bind PingText, Mode=OneWay}" />
+                                                        </TextBlock>
+                                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                                            <TextBlock Text="{x:Bind RangeText, Mode=OneWay}" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                                            <FontIcon Glyph="&#xE7BA;" FontSize="12" Foreground="{ThemeResource SystemFillColorCautionBrush}"
+                                                                      Visibility="{x:Bind WarningVisibility, Mode=OneWay}"
+                                                                      ToolTipService.ToolTip="{x:Bind WarningText, Mode=OneWay}" />
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                </tk:SettingsCard.Description>
+                                                <ToggleSwitch IsOn="{x:Bind IsAllowed, Mode=TwoWay}" OnContent="Allowed" OffContent="Blocked" />
+                                            </tk:SettingsCard>
                                         </DataTemplate>
                                     </ItemsRepeater.ItemTemplate>
                                 </ItemsRepeater>

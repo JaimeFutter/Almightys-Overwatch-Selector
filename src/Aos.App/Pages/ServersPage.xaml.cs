@@ -33,6 +33,21 @@ public sealed partial class ServersPage : Page
         finally { Busy.IsActive = false; }
         ReadFirewall();
         _ = PingAllAsync();
+        _ = WarnAboutOtherBlocksAsync();
+    }
+
+    /// <summary>Other tools' block rules can block servers the user allows here, so point them out once.</summary>
+    private async Task WarnAboutOtherBlocksAsync()
+    {
+        try
+        {
+            var foreign = (await Task.Run(Aos.Core.Firewall.OverwatchRules.List))
+                .Where(r => r.IsBlock && r.Enabled && r.Source != Aos.Core.Firewall.RuleSource.Ours).ToList();
+            if (foreign.Count > 0)
+                State.ReportError($"Found {foreign.Count} Overwatch block rule(s) from other tools ({string.Join(", ", foreign.Select(r => r.SourceText).Distinct())}). " +
+                                  "They can block servers you allow here. Review them on the Firewall page.");
+        }
+        catch { /* informational only */ }
     }
 
     private void BuildItems()

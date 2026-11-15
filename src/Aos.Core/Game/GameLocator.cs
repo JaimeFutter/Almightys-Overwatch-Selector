@@ -70,9 +70,13 @@ public static partial class GameLocator
 
         string vdf = Path.Combine(steam, "steamapps", "libraryfolders.vdf");
         if (!File.Exists(vdf)) yield break;
-        foreach (Match m in VdfPath().Matches(File.ReadAllText(vdf)))
-            yield return m.Groups[1].Value.Replace(@"\\", @"\");
+        foreach (string lib in ParseSteamLibraries(File.ReadAllText(vdf)))
+            yield return lib;
     }
+
+    /// <summary>Reads library folder paths out of Steam's libraryfolders.vdf (backslashes are escaped there).</summary>
+    public static IReadOnlyList<string> ParseSteamLibraries(string vdf) =>
+        VdfPath().Matches(vdf).Select(m => m.Groups[1].Value.Replace(@"\\", @"\")).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
 
     [GeneratedRegex("\"path\"\\s+\"([^\"]+)\"")]
     private static partial Regex VdfPath();

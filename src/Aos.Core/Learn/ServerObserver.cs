@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using Aos.Core.Game;
@@ -21,12 +20,11 @@ public sealed class ServerObserver : IDisposable
     public const int MatchThreshold = 20;
     private static readonly TimeSpan Window = TimeSpan.FromSeconds(5);
 
-    private readonly ConcurrentQueue<(DateTime At, IPAddress Ip, int Size)> _packets = new();
+    private readonly TrafficAnalyzer _traffic = new(Window, MatchThreshold);
     private TraceEventSession? _session;
     private Thread? _thread;
     private Timer? _timer;
     private HashSet<int> _pids = [];
-    private IPAddress? _current;
 
     /// <summary>Raised when the match server changes (null when the match ends).</summary>
     public event Action<ObservedServer?>? ServerChanged;
@@ -65,7 +63,6 @@ public sealed class ServerObserver : IDisposable
         _timer?.Dispose(); _timer = null;
         _session?.Dispose(); _session = null;
         _thread = null;
-        _current = null;
     }
 
     public void Dispose() => Stop();
@@ -77,30 +74,16 @@ public sealed class ServerObserver : IDisposable
     private void OnSend(int pid, IPAddress? daddr, int size)
     {
         if (daddr is null || !_pids.Contains(pid) || !IsPublic(daddr)) return;
-        _packets.Enqueue((DateTime.UtcNow, daddr, size));
+        _traffic.Add(DateTime.UtcNow, daddr, size);
     }
 
     private void Evaluate()
     {
         if (++_tickCount % 5 == 0) RefreshPids();
 
-        var cutoff = DateTime.UtcNow - Window;
-        while (_packets.TryPeek(out var p) && p.At < cutoff) _packets.TryDequeue(out _);
-
-        var top = _packets.ToArray()
-            .GroupBy(p => p.Ip)
-            .Select(g => new ObservedServer(g.Key, (int)(g.Count() / Window.TotalSeconds), g.Sum(x => (long)x.Size)))
-            .OrderByDescending(s => s.PacketsPerSecond)
-            .Take(5)
-            .ToList();
+        var top = _traffic.Top(DateTime.UtcNow);
         Tick?.Invoke(top);
-
-        var best = top.FirstOrDefault(s => s.PacketsPerSecond >= MatchThreshold);
-        if (!Equals(best?.Address, _current))
-        {
-            _current = best?.Address;
-            ServerChanged?.Invoke(best);
-        }
+        if (_traffic.Evaluate(top, out var server)) ServerChanged?.Invoke(server);
     }
 
     public static bool IsPublic(IPAddress ip)

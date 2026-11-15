@@ -26,7 +26,10 @@ Downloads are cached in `%LOCALAPPDATA%\AlmightysOverwatchSelector` and refresh 
 3. Restart Overwatch if it was running.
 4. Optional: on **Learn**, click **Start watching** and play a match. Check the detected server against the in-game network graph (Ctrl+Shift+N).
 
-Rules are named `AOS | <SERVER> | n in/out` in the group "Almighty's Overwatch Selector". You can see them in `wf.msc`. **Unblock all** removes them.
+5. **Firewall** lists every firewall rule that touches Overwatch, from any tool (this app, dropship, other selectors, rules you made yourself). You can turn rules on or off, delete them, or use **Remove all Overwatch block rules** (Windows' own allow rules are kept). It also finds dropship's hidden WFP filters, which don't show up as firewall rules, and can remove them.
+6. Closing the window keeps the app in the system tray (on by default; you can change it in Settings). Click the tray icon to reopen it, or right-click it and choose **Exit**. Launching the app again brings the running copy back instead of opening a second one.
+
+Rules are named `AOS - <SERVER> - n in/out` in the group "Almighty's Overwatch Selector". You can see them in `wf.msc`. **Unblock all** removes them.
 
 ## Command line
 
@@ -39,6 +42,8 @@ aos ping
 aos apply --allow EU                            # (admin) block every non-EU server
 aos block ME                                    # (admin) block just the Middle East
 aos status | aos clear | aos learn
+aos rules [--remove-blocks]                     # every Overwatch rule, from any tool
+aos dropship [--remove]                         # (admin) dropship's leftover WFP filters
 ```
 
 ## Build

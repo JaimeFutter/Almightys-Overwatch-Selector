@@ -37,9 +37,11 @@ public sealed class ServerItem : Observable
     public bool IsAllowed
     {
         get => _allowed;
-        set { if (Set(ref _allowed, value)) { Raise(nameof(StateText)); AllowedChanged?.Invoke(); } }
+        set { if (Set(ref _allowed, value)) { Raise(nameof(StateText)); Raise(nameof(StateGlyph)); AllowedChanged?.Invoke(); } }
     }
     public string StateText => _allowed ? "Allowed" : "Blocked";
+    /// <summary>Globe when allowed, blocked-circle when blocked.</summary>
+    public string StateGlyph => _allowed ? "\uE774" : "\uE733";
     public event Action? AllowedChanged;
 
     private bool _applied = true;
@@ -92,4 +94,13 @@ public sealed class LearnedItem : Observable
     public string Owner { get; }
     public string Seen => $"{Source.Sightings}× · last {Source.LastSeen.LocalDateTime:g}";
     public string ServerCode => Source.ServerCode ?? "";
+}
+
+public sealed class RuleGroup
+{
+    public required string Name { get; init; }
+    public required List<Aos.Core.Firewall.OverwatchRule> Rules { get; init; }
+    public string CountText => $"{Rules.Count} rule{(Rules.Count == 1 ? "" : "s")}";
+
+    public static string GlyphFor(bool isBlock) => isBlock ? "\uE733" : "\uE73E";
 }

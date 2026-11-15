@@ -16,7 +16,7 @@
 
         <Grid x:Name="TitleBar" Padding="16,0,0,0">
             <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                <FontIcon Glyph="&#xE909;" FontSize="14" />
+                <Image Source="ms-appx:///Assets/app.png" Width="16" Height="16" />
                 <TextBlock Text="Almighty's Overwatch Selector" Style="{StaticResource CaptionTextBlockStyle}" />
             </StackPanel>
         </Grid>
@@ -31,6 +31,11 @@
             SelectionChanged="Nav_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Servers" Tag="servers" Icon="World" />
+                <NavigationViewItem Content="Firewall" Tag="firewall">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE83D;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="Learn" Tag="learn">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE9D9;" />
@@ -43,7 +48,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <InfoBar x:Name="Notice" Margin="24,12,24,0" IsOpen="False" />
+                <InfoBar x:Name="Notice" Margin="36,12,36,0" MaxWidth="1000" IsOpen="False" />
                 <Frame x:Name="ContentFrame" Grid.Row="1" />
             </Grid>
         </NavigationView>

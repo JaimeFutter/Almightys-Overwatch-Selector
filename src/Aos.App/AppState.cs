@@ -12,6 +12,8 @@ public sealed class AppSettings
 {
     public string? GamePath { get; set; }
     public bool RemoveRulesOnExit { get; set; }
+    /// <summary>Closing the window hides it to the tray instead of quitting. On by default.</summary>
+    public bool CloseToTray { get; set; } = true;
     public List<string> Blocked { get; set; } = [];
 }
 

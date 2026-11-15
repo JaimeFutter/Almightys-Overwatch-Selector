@@ -3,72 +3,81 @@
     x:Class="Aos.App.Pages.LearnPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:tk="using:CommunityToolkit.WinUI.Controls"
     xmlns:app="using:Aos.App">
 
-    <ScrollViewer>
-        <StackPanel Padding="24,12,24,24" Spacing="16" MaxWidth="900" HorizontalAlignment="Left">
-            <StackPanel Spacing="2">
-                <TextBlock Text="Learn" Style="{StaticResource TitleTextBlockStyle}" />
-                <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Text="Watches the traffic Overwatch sends during a match and picks out the game server. Each server IP is matched to a region and remembered, so it gets blocked too even if Blizzard moves to new addresses. Check it against the in-game network graph (Ctrl+Shift+N)." />
-            </StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <ToggleButton x:Name="WatchButton" Click="Watch_Click">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7B3;" FontSize="14" />
-                        <TextBlock x:Name="WatchLabel" Text="Start watching" />
-                    </StackPanel>
-                </ToggleButton>
-                <TextBlock x:Name="WatchStatus" VerticalAlignment="Center" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-            </StackPanel>
-
-            <Grid Padding="20,16" CornerRadius="8" RowSpacing="6" ColumnSpacing="24"
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                </Grid.RowDefinitions>
-                <TextBlock Text="Current match server" Grid.ColumnSpan="2" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <TextBlock x:Name="CurrentServer" Grid.Row="1" Grid.ColumnSpan="2" Text="No match detected" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock x:Name="CurrentDetail" Grid.Row="2" Grid.ColumnSpan="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
-            </Grid>
-
-            <TextBlock Text="Busiest destinations (last 5 s)" Style="{StaticResource BodyStrongTextBlockStyle}" />
-            <TextBlock x:Name="TopList" FontFamily="Consolas" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="—" />
-
-            <TextBlock Text="Learned servers" Style="{StaticResource SubtitleTextBlockStyle}" />
-            <TextBlock TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                       Text="Change the server if a guess is wrong, or set one for an unknown IP. Its /24 block gets added to that server's block list (click Apply on Servers)." />
-            <ListView x:Name="LearnedList" SelectionMode="None">
-                <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="app:LearnedItem">
-                        <Grid ColumnSpacing="12" Padding="0,6">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="160" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="220" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Text="{x:Bind Ip}" FontFamily="Consolas" VerticalAlignment="Center" />
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="{x:Bind Owner}" />
-                                <TextBlock Text="{x:Bind Seen}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
-                            </StackPanel>
-                            <ComboBox Grid.Column="2" Tag="{x:Bind Ip}" HorizontalAlignment="Stretch" Loaded="ServerCombo_Loaded" SelectionChanged="ServerCombo_SelectionChanged" />
-                            <Button Grid.Column="3" Tag="{x:Bind Ip}" Click="Forget_Click" ToolTipService.ToolTip="Forget this IP">
-                                <FontIcon Glyph="&#xE74D;" FontSize="14" />
-                            </Button>
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+        <StackPanel Margin="{StaticResource PageHeaderMargin}" MaxWidth="{StaticResource PageMaxWidth}">
+            <TextBlock Text="Learn" Style="{StaticResource TitleTextBlockStyle}" />
+            <TextBlock Style="{StaticResource PageDescriptionStyle}"
+                       Text="Watches the traffic Overwatch sends during a match and picks out the game server. Each server IP is matched to a region and remembered, so it stays blocked even if Blizzard moves to new addresses. Check it against the in-game network graph (Ctrl+Shift+N)." />
         </StackPanel>
-    </ScrollViewer>
+
+        <ScrollViewer Grid.Row="1" Padding="{StaticResource PageScrollPadding}">
+            <StackPanel MaxWidth="{StaticResource PageMaxWidth}" Margin="{StaticResource PageContentMargin}" Spacing="{StaticResource SettingsCardSpacing}">
+
+                <tk:SettingsCard Header="Watch Overwatch traffic">
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE7B3;" /></tk:SettingsCard.HeaderIcon>
+                    <tk:SettingsCard.Description>
+                        <TextBlock x:Name="WatchStatus" />
+                    </tk:SettingsCard.Description>
+                    <ToggleButton x:Name="WatchButton" Click="Watch_Click">
+                        <TextBlock x:Name="WatchLabel" Text="Start watching" />
+                    </ToggleButton>
+                </tk:SettingsCard>
+
+                <tk:SettingsCard>
+                    <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE968;" /></tk:SettingsCard.HeaderIcon>
+                    <tk:SettingsCard.Header>
+                        <TextBlock x:Name="CurrentServer" Text="No match detected" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    </tk:SettingsCard.Header>
+                    <tk:SettingsCard.Description>
+                        <TextBlock x:Name="CurrentDetail" Text="Current match server" TextWrapping="Wrap" />
+                    </tk:SettingsCard.Description>
+                </tk:SettingsCard>
+
+                <tk:SettingsExpander Header="Busiest destinations" Description="Overwatch's top UDP destinations over the last 5 seconds.">
+                    <tk:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE9D9;" /></tk:SettingsExpander.HeaderIcon>
+                    <tk:SettingsExpander.Items>
+                        <tk:SettingsCard HorizontalContentAlignment="Left" ContentAlignment="Left">
+                            <TextBlock x:Name="TopList" FontFamily="Consolas" Text="—" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                        </tk:SettingsCard>
+                    </tk:SettingsExpander.Items>
+                </tk:SettingsExpander>
+
+                <TextBlock Text="Learned servers" Style="{StaticResource SectionHeaderStyle}" />
+                <TextBlock Style="{StaticResource PageDescriptionStyle}" Margin="1,-2,0,8"
+                           Text="Change the server if a guess is wrong, or pick one for an unknown IP. Its /24 block is added to that server's list (click Apply on Servers)." />
+                <ItemsRepeater x:Name="LearnedList">
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="{StaticResource SettingsCardSpacing}" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="app:LearnedItem">
+                            <tk:SettingsCard Header="{x:Bind Ip}">
+                                <tk:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE968;" /></tk:SettingsCard.HeaderIcon>
+                                <tk:SettingsCard.Description>
+                                    <TextBlock>
+                                        <Run Text="{x:Bind Owner}" /><Run Text="  ·  " /><Run Text="{x:Bind Seen}" />
+                                    </TextBlock>
+                                </tk:SettingsCard.Description>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <ComboBox Tag="{x:Bind Ip}" Width="230" Loaded="ServerCombo_Loaded" SelectionChanged="ServerCombo_SelectionChanged" />
+                                    <Button Tag="{x:Bind Ip}" Click="Forget_Click" ToolTipService.ToolTip="Forget this IP">
+                                        <FontIcon Glyph="&#xE74D;" FontSize="14" />
+                                    </Button>
+                                </StackPanel>
+                            </tk:SettingsCard>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+                <TextBlock x:Name="NoLearned" Text="Nothing learned yet. Start watching and play a match." Style="{StaticResource PageDescriptionStyle}" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </Page>

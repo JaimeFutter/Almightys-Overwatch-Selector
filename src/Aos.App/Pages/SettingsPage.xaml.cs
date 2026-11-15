@@ -9,6 +9,8 @@ namespace Aos.App.Pages;
 
 public sealed partial class SettingsPage : Page
 {
+    private bool _loading;
+
     private static AppState State => App.State;
 
     public SettingsPage()
@@ -19,31 +21,34 @@ public sealed partial class SettingsPage : Page
 
     private void Refresh()
     {
-        GamePathBox.Text = State.Settings.GamePath ?? State.GamePath ?? "";
-        GameStatus.Text = State.GamePath is { } p ? $"Using {p}" : "Overwatch.exe wasn't found. Browse to it (usually ...\\Overwatch\\_retail_\\Overwatch.exe).";
+        _loading = true;
+        GameCard.Description = State.GamePath is { } p
+            ? p
+            : "Not found. Click Browse and pick ...\\Overwatch\\_retail_\\Overwatch.exe.";
+        CloseToTray.IsOn = State.Settings.CloseToTray;
         RemoveOnExit.IsOn = State.Settings.RemoveRulesOnExit;
+        _loading = false;
 
         try
         {
             var rules = State.Firewall.List();
-            RulesText.Text = rules.Count == 0
-                ? "No block rules are active."
-                : $"{rules.Count} rules active for {rules.Select(r => r.ServerCode).Distinct().Count()} server(s): " +
-                  string.Join(", ", rules.Select(r => r.ServerCode.ToUpperInvariant()).Distinct()) + ". Visible in wf.msc under Outbound/Inbound Rules.";
+            RulesCard.Description = rules.Count == 0
+                ? "No block rules are active. Overwatch can reach every server."
+                : $"{rules.Count} rules blocking {rules.Select(r => r.ServerCode).Distinct().Count()} server(s): " +
+                  string.Join(", ", rules.Select(r => r.ServerCode.ToUpperInvariant()).Distinct()) + ".";
         }
-        catch (Exception e) { RulesText.Text = $"Couldn't read rules: {e.Message}"; }
+        catch (Exception e) { RulesCard.Description = $"Couldn't read rules: {e.Message}"; }
 
         var s = State.Builder.LoadSnapshot();
-        SourcesText.Text =
-            $"Google Cloud: {Fmt(s.GcpFetched)} ({s.Gcp.Count} regions)\n" +
-            $"AWS: {Fmt(s.AwsFetched)} ({s.Aws.Count} regions)\n" +
-            $"Blizzard network AS57976: {Fmt(s.AsnFetched)} ({s.BlizzardAsn.Count} prefixes)\n" +
-            $"Server catalog: {State.Catalog.Origin} ({State.Catalog.Servers.Count} servers)\n" +
-            $"Learned server IPs: {State.Learned.Items.Count}\n" +
-            "IPs refresh automatically once they're more than 7 days old.";
+        GcpCard.Description = $"{Fmt(s.GcpFetched)} · {s.Gcp.Count} regions";
+        AwsCard.Description = $"{Fmt(s.AwsFetched)} · {s.Aws.Count} regions";
+        AsnCard.Description = $"{Fmt(s.AsnFetched)} · {s.BlizzardAsn.Count} prefixes";
+        CatalogCard.Description = $"{State.Catalog.Origin} · {State.Catalog.Servers.Count} servers";
+        LearnedCard.Description = $"{State.Learned.Items.Count} learned";
+        DataCard.Description = AppPaths.DataDirectory;
     }
 
-    private static string Fmt(DateTimeOffset? d) => d is null ? "never downloaded" : $"updated {d.Value.LocalDateTime:g}";
+    private static string Fmt(DateTimeOffset? d) => d is null ? "Never downloaded" : $"Updated {d.Value.LocalDateTime:g}";
 
     private void SetGamePath(string? path)
     {
@@ -52,12 +57,12 @@ public sealed partial class SettingsPage : Page
         Refresh();
     }
 
-    private void GamePath_LostFocus(object sender, RoutedEventArgs e)
+    private void Detect_Click(object sender, RoutedEventArgs e)
     {
-        if (GamePathBox.Text != (State.Settings.GamePath ?? State.GamePath ?? "")) SetGamePath(GamePathBox.Text);
+        string? found = GameLocator.Find();
+        if (found is null) State.ReportError("Couldn't find Overwatch.exe automatically. Use Browse to pick it.");
+        SetGamePath(found);
     }
-
-    private void Detect_Click(object sender, RoutedEventArgs e) => SetGamePath(GameLocator.Find());
 
     private async void Browse_Click(object sender, RoutedEventArgs e)
     {
@@ -68,9 +73,16 @@ public sealed partial class SettingsPage : Page
         if (file is not null) SetGamePath(file.Path);
     }
 
+    private void CloseToTray_Toggled(object sender, RoutedEventArgs e)
+    {
+        if (_loading || State.Settings.CloseToTray == CloseToTray.IsOn) return;
+        State.Settings.CloseToTray = CloseToTray.IsOn;
+        State.SaveSettings();
+    }
+
     private void RemoveOnExit_Toggled(object sender, RoutedEventArgs e)
     {
-        if (State.Settings.RemoveRulesOnExit == RemoveOnExit.IsOn) return;
+        if (_loading || State.Settings.RemoveRulesOnExit == RemoveOnExit.IsOn) return;
         State.Settings.RemoveRulesOnExit = RemoveOnExit.IsOn;
         State.SaveSettings();
     }
