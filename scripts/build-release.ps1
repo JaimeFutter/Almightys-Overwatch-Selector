@@ -64,7 +64,7 @@ if ($Stage -in 'All', 'Package') {
         "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
     ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
     if (-not $iscc) { throw 'Inno Setup 6 not found. Install it: winget install JRSoftware.InnoSetup' }
-    & $iscc /Q "/DAppVersion=$Version" "/DSourceDir=$publishDir" "/DOutputDir=$artifacts" (Join-Path $root 'installer\setup.iss')
+    & $iscc /Q "/DAppVersion=$Version" "/DAppVersionNum=$($Version -replace '-.*$', '')" "/DSourceDir=$publishDir" "/DOutputDir=$artifacts" (Join-Path $root 'installer\setup.iss')
     if ($LASTEXITCODE) { throw 'Installer build failed.' }
 
     Step 'Writing checksums'

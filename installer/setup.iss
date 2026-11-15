@@ -5,6 +5,10 @@
 #ifndef AppVersion
   #define AppVersion "1.0.0"
 #endif
+#ifndef AppVersionNum
+  ; Numeric-only version for the file's version resource (pre-release suffixes like -beta.1 aren't allowed there).
+  #define AppVersionNum AppVersion
+#endif
 #ifndef SourceDir
   #define SourceDir "..\artifacts\publish\win-x64"
 #endif
@@ -28,7 +32,7 @@ AppPublisherURL={#AppUrl}
 AppSupportURL={#AppUrl}/issues
 AppUpdatesURL={#AppUrl}/releases
 AppCopyright=Copyright (C) 2026 {#AppPublisher}
-VersionInfoVersion={#AppVersion}
+VersionInfoVersion={#AppVersionNum}
 DefaultDirName={autopf}\Almightys Overwatch Selector
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
