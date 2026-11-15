@@ -1,6 +1,6 @@
 # Almighty's Overwatch Selector
 
-A Windows 11 (WinUI 3) app that picks which Overwatch 2 servers you can be matched on. It blocks `Overwatch.exe` from the regions you don't want, using Windows Firewall rules.
+A Windows 11 (WinUI 3) app that picks which Overwatch servers you can be matched on. It blocks `Overwatch.exe` from the regions you don't want, using Windows Firewall rules.
 It's built with a South Africa → avoid the Middle East setup in mind, but works for any region.
 
 > Unofficial fan-made tool. Not affiliated with or endorsed by Blizzard Entertainment.

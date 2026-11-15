@@ -1,6 +1,6 @@
 Almighty's Overwatch Selector
 
-Picks which Overwatch 2 servers you can be matched on by adding Windows Firewall rules
+Picks which Overwatch servers you can be matched on by adding Windows Firewall rules
 that block Overwatch.exe from the regions you don't want. Game files are never touched.
 
 Good to know:

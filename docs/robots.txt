@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jaimefutter.github.io/Almightys-Overwatch-Selector/sitemap.xml

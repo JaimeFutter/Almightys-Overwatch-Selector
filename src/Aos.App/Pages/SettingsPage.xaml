@@ -62,7 +62,7 @@
                 </tk:SettingsCard>
 
                 <TextBlock Text="About" Style="{StaticResource SectionHeaderStyle}" />
-                <tk:SettingsExpander x:Name="AboutExpander" Header="Almighty's Overwatch Selector" Description="Choose which Overwatch 2 servers you can be matched on.">
+                <tk:SettingsExpander x:Name="AboutExpander" Header="Almighty's Overwatch Selector" Description="Choose which Overwatch servers you can be matched on.">
                     <tk:SettingsExpander.HeaderIcon>
                         <ImageIcon Source="ms-appx:///Assets/app.png" />
                     </tk:SettingsExpander.HeaderIcon>
